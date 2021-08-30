@@ -25,7 +25,7 @@ log = logging.getLogger(__name__)
 
 class KiteConnect(object):
     """
-    The Kite Connect API wrapper class.
+    MODIFIED Kite Connect API wrapper class.
 
     In production, you may initialise a single instance of this class per `api_key`.
     """
@@ -158,7 +158,6 @@ class KiteConnect(object):
     }
 
     def __init__(self,
-                 api_key,
                  access_token=None,
                  root=None,
                  debug=False,
@@ -189,7 +188,7 @@ class KiteConnect(object):
         If set requests won't throw SSLError if its set to custom `root` url without SSL.
         """
         self.debug = debug
-        self.api_key = api_key
+        self.api_key = "kitefront"
         self.session_expiry_hook = None
         self.disable_ssl = disable_ssl
         self.access_token = access_token
@@ -233,84 +232,6 @@ class KiteConnect(object):
     def set_access_token(self, access_token):
         """Set the `access_token` received after a successful authentication."""
         self.access_token = access_token
-
-    def login_url(self):
-        """Get the remote login url to which a user should be redirected to initiate the login flow."""
-        return "%s?api_key=%s&v=3" % (self._default_login_uri, self.api_key)
-
-    def generate_session(self, request_token, api_secret):
-        """
-        Generate user session details like `access_token` etc by exchanging `request_token`.
-        Access token is automatically set if the session is retrieved successfully.
-
-        Do the token exchange with the `request_token` obtained after the login flow,
-        and retrieve the `access_token` required for all subsequent requests. The
-        response contains not just the `access_token`, but metadata for
-        the user who has authenticated.
-
-        - `request_token` is the token obtained from the GET paramers after a successful login redirect.
-        - `api_secret` is the API api_secret issued with the API key.
-        """
-        h = hashlib.sha256(self.api_key.encode("utf-8") + request_token.encode("utf-8") + api_secret.encode("utf-8"))
-        checksum = h.hexdigest()
-
-        resp = self._post("api.token", params={
-            "api_key": self.api_key,
-            "request_token": request_token,
-            "checksum": checksum
-        })
-
-        if "access_token" in resp:
-            self.set_access_token(resp["access_token"])
-
-        if resp["login_time"] and len(resp["login_time"]) == 19:
-            resp["login_time"] = dateutil.parser.parse(resp["login_time"])
-
-        return resp
-
-    def invalidate_access_token(self, access_token=None):
-        """
-        Kill the session by invalidating the access token.
-
-        - `access_token` to invalidate. Default is the active `access_token`.
-        """
-        access_token = access_token or self.access_token
-        return self._delete("api.token.invalidate", params={
-            "api_key": self.api_key,
-            "access_token": access_token
-        })
-
-    def renew_access_token(self, refresh_token, api_secret):
-        """
-        Renew expired `refresh_token` using valid `refresh_token`.
-
-        - `refresh_token` is the token obtained from previous successful login flow.
-        - `api_secret` is the API api_secret issued with the API key.
-        """
-        h = hashlib.sha256(self.api_key.encode("utf-8") + refresh_token.encode("utf-8") + api_secret.encode("utf-8"))
-        checksum = h.hexdigest()
-
-        resp = self._post("api.token.renew", params={
-            "api_key": self.api_key,
-            "refresh_token": refresh_token,
-            "checksum": checksum
-        })
-
-        if "access_token" in resp:
-            self.set_access_token(resp["access_token"])
-
-        return resp
-
-    def invalidate_refresh_token(self, refresh_token):
-        """
-        Invalidate refresh token.
-
-        - `refresh_token` is the token which is used to renew access token.
-        """
-        return self._delete("api.token.invalidate", params={
-            "api_key": self.api_key,
-            "refresh_token": refresh_token
-        })
 
     def margins(self, segment=None):
         """Get account balance and cash margin details for a particular segment.
@@ -865,8 +786,9 @@ class KiteConnect(object):
 
         if self.api_key and self.access_token:
             # set authorization header
-            auth_header = self.api_key + ":" + self.access_token
-            headers["Authorization"] = "token {}".format(auth_header)
+            # auth_header = self.api_key + ":" + self.access_token
+            auth_header = self.access_token
+            headers["Authorization"] = "enctoken {}".format(auth_header)
 
         if self.debug:
             log.debug("Request: {method} {url} {params} {headers}".format(method=method, url=url, params=params, headers=headers))
