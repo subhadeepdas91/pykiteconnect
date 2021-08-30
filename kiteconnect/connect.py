@@ -32,7 +32,7 @@ class KiteConnect(object):
 
     # Default root API endpoint. It's possible to
     # override this by passing the `root` parameter during initialisation.
-    _default_root_uri = "https://api.kite.trade"
+    _default_root_uri = "https://kite.zerodha.com/oms" # _default_root_uri = "https://api.kite.trade"
     _default_login_uri = "https://kite.trade/connect/login"
     _default_timeout = 7  # In seconds
 
@@ -750,7 +750,7 @@ class KiteConnect(object):
         return records
 
     def _user_agent(self):
-        return (__title__ + "-python/").capitalize() + __version__
+        return "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36" #(__title__ + "-python/").capitalize() + __version__
 
     def _get(self, route, url_args=None, params=None, is_json=False):
         """Alias for sending a GET request."""
