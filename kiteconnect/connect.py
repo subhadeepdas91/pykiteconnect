@@ -776,7 +776,7 @@ class KiteConnect(object):
         else:
             uri = self._routes[route]
 
-        url = urljoin(self.root, uri)
+        url = self.root + uri # urljoin(self.root, uri)
 
         # Custom headers
         headers = {
