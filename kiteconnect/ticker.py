@@ -398,10 +398,11 @@ class KiteTicker(object):
     # Maximum number or retries user can set
     _maximum_reconnect_max_tries = 300
 
-    def __init__(self, api_key, access_token, debug=False, root=None,
+    def __init__(self, raw_ws_url, debug=False, root=None,
                  reconnect=True, reconnect_max_tries=RECONNECT_MAX_TRIES, reconnect_max_delay=RECONNECT_MAX_DELAY,
                  connect_timeout=CONNECT_TIMEOUT):
         """
+        MODIFIED Kite Ticker Library
         Initialise websocket client instance.
 
         - `api_key` is the API key issued to you
@@ -438,12 +439,13 @@ class KiteTicker(object):
 
         self.connect_timeout = connect_timeout
 
-        self.socket_url = "{root}?api_key={api_key}"\
-            "&access_token={access_token}".format(
-                root=self.root,
-                api_key=api_key,
-                access_token=access_token
-            )
+        # self.socket_url = "{root}?api_key={api_key}"\
+        #     "&access_token={access_token}".format(
+        #         root=self.root,
+        #         api_key=api_key,
+        #         access_token=access_token
+        #     )
+        self.socket_url = raw_ws_url
 
         # Debug enables logs
         self.debug = debug
